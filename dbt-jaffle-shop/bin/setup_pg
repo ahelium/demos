@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+psql postgres://${PG_USER}:${PG_PW}@${PG_HOST}:5432/${PG_DB} << EOF
+
+DROP PUBLICATION IF EXISTS mz_jaffle_shop_source;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS payments;
+
+CREATE TABLE payments (id serial PRIMARY KEY, order_id INT, payment_method VARCHAR (50), amount INT);
+CREATE TABLE orders (id serial PRIMARY KEY, user_id INT, order_date TIMESTAMP, status VARCHAR (50));
+CREATE TABLE customers (id INT PRIMARY KEY, first_name VARCHAR (50), last_name VARCHAR (50));
+
+CREATE publication mz_jaffle_shop_source FOR TABLE orders, payments, customers;
+
+EOF

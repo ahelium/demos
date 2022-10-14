@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+psql postgres://${MZ_USER}%40materialize.com:${MZ_PW}%40materialize.com@${MZ_HOST}:6875/materialize  << EOF
+
+CREATE SECRET IF NOT EXISTS JAFFLE_SHOP_PG_PW AS '${PG_PW}';
+
+CREATE CONNECTION IF NOT EXISTS pg_jaffle_shop
+FOR POSTGRES 
+HOST'${PG_HOST}',
+PORT 5432,
+USER '${PG_USER}',
+PASSWORD SECRET JAFFLE_SHOP_PG_PW,
+DATABASE '${PG_DB}';
+
+CREATE CLUSTER jaffle_shop REPLICAS (xsmall_repplica (SIZE 'xsmall'));
+
+EOF
